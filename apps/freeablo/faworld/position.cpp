@@ -1,4 +1,5 @@
 #include "position.h"
+#include <misc/misc.h>
 
 namespace FAWorld
 {
@@ -20,7 +21,7 @@ namespace FAWorld
 
             if(mDist >= 100)
             {
-                mCurrent = next();
+                nextStep();
                 mDist = 0;
             }
         }
@@ -33,71 +34,18 @@ namespace FAWorld
 
     std::pair<size_t, size_t> Position::next() const
     {
-        if(!mMoving)
+        if(!mMoving || mPath.length() == 0)
             return mCurrent;
-        
-        std::pair<size_t, size_t> retval = mCurrent;
 
-        switch(mDirection)
-        {
-            case 0:
-            {
-                retval.first++;
-                retval.second++;
-                break;
-            }
-            
-            case 7:
-            {
-                retval.first++;
-                break;
-            }
-
-            case 6:
-            {
-                retval.first++;
-                retval.second--;
-                break;
-            }
-
-            case 5:
-            {
-                retval.second--;
-                break;
-            }
-            
-            case 4:
-            {
-                retval.first--;
-                retval.second--;
-                break;
-            }
-
-            case 3:
-            {
-                retval.first--;
-                break;
-            }
-
-            case 2:
-            {
-                retval.first--;
-                retval.second++;
-                break;
-            }
-
-            case 1:
-            {
-                retval.second++;
-                break;
-            }
-
-            default:
-            {
-                break;
-            }
-        }
-
-        return retval;
+        return mPath.peekStep();
     }
+
+	void Position::nextStep()
+	{
+		if (mPath.length() != 0)
+		{
+			mCurrent = mPath.nextStep();
+			mDirection = Misc::getVecDir(Misc::getVec(mCurrent, mPath.peekStep()));
+		}
+	}
 }

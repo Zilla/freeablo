@@ -12,6 +12,7 @@
 #include "farender/renderer.h"
 
 #include "faworld/world.h"
+#include "faworld/pathfinding.h"
 
 #include "fagui/guimanager.h"
 
@@ -374,6 +375,7 @@ void runGameLoop(const bpo::variables_map& variables)
     }
 
     FAWorld::World world;
+    FAWorld::PathFinder pathFinder;
 
     FALevelGen::FAsrand(time(NULL));
 
@@ -484,7 +486,11 @@ void runGameLoop(const bpo::variables_map& variables)
             {
                 if(player->mPos.mDist == 0)
                 {
-                    std::pair<float, float> vector = Misc::getVec(player->mPos.current(), destination);
+                    if (mouseDown)
+                    {
+                        FAWorld::Path path = pathFinder.findPath(level, player->mPos.current(), destination);
+                        player->mPos.setPath(path);
+                    }
 
                     if(!player->mPos.mMoving)
                     {
@@ -492,7 +498,6 @@ void runGameLoop(const bpo::variables_map& variables)
                         player->setAnimation(FAWorld::AnimState::walk);
                     }
 
-                    player->mPos.mDirection = Misc::getVecDir(vector);
                 }
             }
             else if(player->mPos.mMoving && player->mPos.mDist == 0)
